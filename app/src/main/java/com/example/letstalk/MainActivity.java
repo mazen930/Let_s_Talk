@@ -3,6 +3,7 @@ package com.example.letstalk;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.viewpager.widget.ViewPager;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -11,7 +12,10 @@ import android.view.MenuItem;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.example.letstalk.Fragments.ChatFragment;
+import com.example.letstalk.Fragments.UsersFragment;
 import com.example.letstalk.Models.User;
+import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -24,12 +28,17 @@ import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
+import static androidx.fragment.app.FragmentStatePagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT;
+
 public class MainActivity extends AppCompatActivity {
     CircleImageView circleImageView;
     TextView userName;
     FirebaseUser firebaseUser;
     DatabaseReference databaseReference;
     Toolbar toolbar;
+    TabLayout tabLayout;
+    ViewPager viewPager;
+    ViewPagerAdapter viewPagerAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,6 +86,22 @@ public class MainActivity extends AppCompatActivity {
         toolbar = findViewById(R.id.tool_bar_Main);
         setSupportActionBar(toolbar);
         Objects.requireNonNull(getSupportActionBar(), "No tool bar found").setTitle("");
+
+        //initialize tab layout
+        tabLayout = findViewById(R.id.tab_layout);
+        viewPager = findViewById(R.id.tab_view_id);
+
+        // This second parameter is used to fill only the constructor of view page adapter
+        // as the old constructor is deprecated
+        viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager(), BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
+
+        viewPagerAdapter.addFragment(new ChatFragment(), "Chat");
+        viewPagerAdapter.addFragment(new UsersFragment(), "Users");
+
+        viewPager.setAdapter(viewPagerAdapter);
+
+        tabLayout.setupWithViewPager(viewPager);
+
     }
 
     //This two functions are used create sub menu in top right of screen
