@@ -3,7 +3,6 @@ package com.example.letstalk;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.fragment.app.Fragment;
 import androidx.viewpager.widget.ViewPager;
 
 import android.content.Intent;
@@ -26,6 +25,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.HashMap;
 import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -107,6 +107,31 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    void status(String status) {
+        databaseReference = FirebaseDatabase.getInstance().getReference("Users").child(firebaseUser.getUid());
+
+        HashMap<String, Object> hashMap = new HashMap<>();
+        hashMap.put("status", status);
+
+        databaseReference.updateChildren(hashMap);
+    }
+
+    // this two methods are overridden related to activity life cycle
+    // here is link for more understanding :
+    // https://developer.android.com/guide/components/activities/activity-lifecycle#:~:text=Use%20the%20onPause()%20method,you%20expect%20to%20resume%20shortly.
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        status("online");
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        status("offline");
+    }
+
     //This two functions are used create sub menu in top right of screen
 
     @Override
@@ -119,8 +144,7 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.logout) {
             FirebaseAuth.getInstance().signOut();
-            startActivity(new Intent(MainActivity.this, StartActivity.class));
-            finish();
+            startActivity(new Intent(MainActivity.this, StartActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
             return true;
         }
         return false;

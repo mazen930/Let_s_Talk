@@ -46,7 +46,7 @@ public class UsersFragment extends Fragment {
         usersArrayList = new ArrayList<>();
         //care you must add these lines here after list is updated so that recycle view will be notified when it change or use it like  iam using it
         // and notify on data set changed
-        userAdapter = new UserAdapter(getContext(), usersArrayList);
+        userAdapter = new UserAdapter(getContext(), usersArrayList, false);
         usersRecycleView.setAdapter(userAdapter);
         readUsers();
 

@@ -22,10 +22,12 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
 
     private Context context;
     private ArrayList<User> userArrayList;
+    boolean isChatting;
 
-    public UserAdapter(Context context, ArrayList<User> userArrayList) {
+    public UserAdapter(Context context, ArrayList<User> userArrayList, boolean isChatting) {
         this.context = context;
         this.userArrayList = userArrayList;
+        this.isChatting = isChatting;
     }
 
     @NonNull
@@ -61,6 +63,20 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
                 context.startActivity(intent);
             }
         });
+
+        if (this.isChatting) {
+            if (currentUser.getStatus().equals("online")) {
+                holder.statusOnline.setVisibility(View.VISIBLE);
+                holder.statusOffline.setVisibility(View.GONE);
+            } else {
+                holder.statusOnline.setVisibility(View.GONE);
+                holder.statusOffline.setVisibility(View.VISIBLE);
+            }
+        } else {
+            holder.statusOnline.setVisibility(View.GONE);
+            holder.statusOffline.setVisibility(View.GONE);
+
+        }
     }
 
 
@@ -72,12 +88,14 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
     // This class used as view holder in recycle view list to preview users
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView username;
-        ImageView profilePicture;
+        ImageView profilePicture, statusOnline, statusOffline;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             username = itemView.findViewById(R.id.username_row);
             profilePicture = itemView.findViewById(R.id.profile_picture_row);
+            statusOffline = itemView.findViewById(R.id.img_offline);
+            statusOnline = itemView.findViewById(R.id.img_online);
         }
     }
 }

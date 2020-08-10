@@ -51,9 +51,7 @@ public class ChatFragment extends Fragment {
 
         userIdArrayList = new ArrayList<>();
         userArrayList = new ArrayList<>();
-        userAdapter = new UserAdapter(getContext(), userArrayList);
-        chatList.setAdapter(userAdapter);
-        userAdapter = new UserAdapter(getContext(), userArrayList);
+        userAdapter = new UserAdapter(getContext(), userArrayList, true);
         chatList.setAdapter(userAdapter);
 
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
