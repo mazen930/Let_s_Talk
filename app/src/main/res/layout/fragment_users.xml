@@ -4,10 +4,17 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".Fragments.UsersFragment">
+    <EditText
+        android:id="@+id/search_user"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="text"
+        android:autofillHints="Search ..." />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/users_list_fragment"
+        android:layout_below="@+id/search_user"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="match_parent"/>
 
 </RelativeLayout>
