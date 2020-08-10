@@ -3,6 +3,7 @@ package com.example.letstalk;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.Fragment;
 import androidx.viewpager.widget.ViewPager;
 
 import android.content.Intent;
@@ -13,6 +14,7 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.example.letstalk.Fragments.ChatFragment;
+import com.example.letstalk.Fragments.ProfileFragment;
 import com.example.letstalk.Fragments.UsersFragment;
 import com.example.letstalk.Models.User;
 import com.google.android.material.tabs.TabLayout;
@@ -97,6 +99,7 @@ public class MainActivity extends AppCompatActivity {
 
         viewPagerAdapter.addFragment(new ChatFragment(), "Chat");
         viewPagerAdapter.addFragment(new UsersFragment(), "Users");
+        viewPagerAdapter.addFragment(new ProfileFragment(), "Profile");
 
         viewPager.setAdapter(viewPagerAdapter);
 

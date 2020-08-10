@@ -14,4 +14,5 @@
     <string name="enter_your_message_here">Enter Your message here</string>
     <string name="send_messages">Send messages</string>
     <string name="hello">Hello !</string>
+    <string name="profile">Profile</string>
 </resources>
