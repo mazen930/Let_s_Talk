@@ -15,4 +15,5 @@
     <string name="send_messages">Send messages</string>
     <string name="hello">Hello !</string>
     <string name="profile">Profile</string>
+    <string name="seen">seen</string>
 </resources>

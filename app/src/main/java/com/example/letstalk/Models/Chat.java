@@ -2,15 +2,17 @@ package com.example.letstalk.Models;
 
 public class Chat {
     String message, sender, receiver;
+    boolean isSeen;
 
     public Chat() {
 
     }
 
-    public Chat(String message, String sender, String receiver) {
+    public Chat(String message, String sender, String receiver, boolean isSeen) {
         this.message = message;
         this.sender = sender;
         this.receiver = receiver;
+        this.isSeen = isSeen;
     }
 
     public String getMessage() {
@@ -35,5 +37,13 @@ public class Chat {
 
     public void setReceiver(String receiver) {
         this.receiver = receiver;
+    }
+
+    public boolean isSeen() {
+        return isSeen;
+    }
+
+    public void setSeen(boolean seen) {
+        isSeen = seen;
     }
 }

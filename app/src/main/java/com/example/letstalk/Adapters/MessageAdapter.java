@@ -1,5 +1,6 @@
 package com.example.letstalk.Adapters;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.view.LayoutInflater;
@@ -49,6 +50,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
         return new MessageAdapter.ViewHolder(view);
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
     public void onBindViewHolder(@NonNull MessageAdapter.ViewHolder holder, int position) {
         Chat chat = chatMessagesArrayList.get(position);
@@ -57,6 +59,17 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
             holder.senderProfilePicture.setImageResource(R.mipmap.ic_launcher_round);
         else
             Glide.with(context).load(imageURL).into(holder.senderProfilePicture);
+
+        // Check on last message
+        if (position == chatMessagesArrayList.size() - 1) {
+            holder.text_seen.setVisibility(View.VISIBLE);
+            if (chat.isSeen()) {
+                holder.text_seen.setText("seen");
+            } else
+                holder.text_seen.setText("delivered");
+        } else {
+            holder.text_seen.setVisibility(View.GONE);
+        }
     }
 
 
@@ -69,13 +82,14 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
     public static class ViewHolder extends RecyclerView.ViewHolder {
         // these are widget located in left and right chat layout
         // we see that they are both with the same name so that we can change between left and right easily
-        TextView message;
+        TextView message, text_seen;
         ImageView senderProfilePicture;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             message = itemView.findViewById(R.id.chat_message);
             senderProfilePicture = itemView.findViewById(R.id.image_chatting);
+            text_seen = itemView.findViewById(R.id.seen);
         }
     }
 

@@ -65,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
                 if (user.getImageURL().equals("default"))
                     circleImageView.setImageResource(R.mipmap.ic_launcher_round);
                 else
-                    Glide.with(MainActivity.this).load(user.getImageURL()).into(circleImageView);
+                    Glide.with(getApplicationContext()).load(user.getImageURL()).into(circleImageView);
             }
 
             @Override

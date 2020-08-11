@@ -46,6 +46,8 @@ public class MessageActivity extends AppCompatActivity {
     RecyclerView chatRecyclerView;
     MessageAdapter messageAdapter;
 
+    ValueEventListener seenValueEventListener;
+
     Intent intent;// To receive userId
 
     @Override
@@ -105,7 +107,7 @@ public class MessageActivity extends AppCompatActivity {
                 if (user.getImageURL().equals("default")) {
                     contactedProfilePicture.setImageResource(R.mipmap.ic_launcher_round);
                 } else {
-                    Glide.with(MessageActivity.this).load(user.getImageURL()).into(contactedProfilePicture);
+                    Glide.with(getApplicationContext()).load(user.getImageURL()).into(contactedProfilePicture);
                 }
                 readMessages(firebaseUser.getUid(), userId, user.getImageURL());
             }
@@ -115,16 +117,39 @@ public class MessageActivity extends AppCompatActivity {
 
             }
         });
+        seenMessage(userId);
+    }
 
+    void seenMessage(final String userId) {
+        databaseReference = FirebaseDatabase.getInstance().getReference("Chats");
+        seenValueEventListener = databaseReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
+                    Chat chat = dataSnapshot.getValue(Chat.class);
+                    if (Objects.requireNonNull(chat, "Chat object is null").getReceiver().equals(firebaseUser.getUid()) && chat.getSender().equals(userId)) {
+                        HashMap<String, Object> hashMap = new HashMap<>();
+                        hashMap.put("seen", true);
+                        dataSnapshot.getRef().updateChildren(hashMap);
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
     }
 
     //This method used to send message and store them in database
     void sendMessage(String sender, String receiver, String message) {
         databaseReference = FirebaseDatabase.getInstance().getReference();
-        HashMap<String, String> hashMap = new HashMap<>();
+        HashMap<String, Object> hashMap = new HashMap<>();
         hashMap.put("sender", sender);
         hashMap.put("receiver", receiver);
         hashMap.put("message", message);
+        hashMap.put("seen", false);
         databaseReference.child("Chats").push().setValue(hashMap);
     }
 
@@ -176,6 +201,8 @@ public class MessageActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
+        //disable listener when activity is paused
+        databaseReference.removeEventListener(seenValueEventListener);
         status("offline");
     }
 
