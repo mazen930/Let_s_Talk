@@ -12,7 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.letstalk.Adapters.UserAdapter;
-import com.example.letstalk.Models.Chat;
+import com.example.letstalk.Models.ChatList;
 import com.example.letstalk.Models.User;
 import com.example.letstalk.R;
 import com.google.firebase.auth.FirebaseAuth;
@@ -24,14 +24,12 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Objects;
 
 public class ChatFragment extends Fragment {
     RecyclerView chatList;
     UserAdapter userAdapter;
     ArrayList<User> userArrayList;
-    ArrayList<String> userIdArrayList;
+    ArrayList<ChatList> userIdArrayList;
     FirebaseUser firebaseUser;
     DatabaseReference databaseReference;
 
@@ -55,22 +53,16 @@ public class ChatFragment extends Fragment {
         chatList.setAdapter(userAdapter);
 
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-        databaseReference = FirebaseDatabase.getInstance().getReference("Chats");
-
+        databaseReference = FirebaseDatabase.getInstance().getReference("ChatList").child(firebaseUser.getUid());
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 userIdArrayList.clear();
                 for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
-                    Chat chat = dataSnapshot.getValue(Chat.class);
-                    if (Objects.requireNonNull(chat, "No data found").getSender().equals(firebaseUser.getUid())) {
-                        userIdArrayList.add(chat.getReceiver());
-                    }
-                    if (chat.getReceiver().equals(firebaseUser.getUid())) {
-                        userIdArrayList.add(chat.getSender());
-                    }
+                    ChatList chatList = dataSnapshot.getValue(ChatList.class);
+                    userIdArrayList.add(chatList);
                 }
-                readChat();
+                ChatList();
             }
 
             @Override
@@ -78,26 +70,25 @@ public class ChatFragment extends Fragment {
 
             }
         });
+
+
     }
 
-    void readChat() {
+    private void ChatList() {
+        userArrayList.clear();
         databaseReference = FirebaseDatabase.getInstance().getReference("Users");
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                // using hashSet is better than using a lot of nested loops that will increase the complexity in case of large connects
-                HashSet<String> userHashSet = new HashSet<>(userIdArrayList);
-                for (String id : userHashSet) {
-                    for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
-                        User user = dataSnapshot.getValue(User.class);
+                for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
+                    User user = dataSnapshot.getValue(User.class);
+                    for (ChatList chatList1 : userIdArrayList) {
                         assert user != null;
-                        if (id.equals(user.getId())) {
+                        if (user.getId().equals(chatList1.getId())) {
                             userArrayList.add(user);
-                            break; // we can break here as we found a target and no longer need to continue
                         }
                     }
                 }
-                // again this is used to notify adapter that data set is changed
                 userAdapter.notifyDataSetChanged();
             }
 
@@ -107,4 +98,6 @@ public class ChatFragment extends Fragment {
             }
         });
     }
+
+
 }

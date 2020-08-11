@@ -39,7 +39,7 @@ public class StartActivity extends AppCompatActivity {
         });
     }
 
-    //this function as shared prefrencse that used in automatic login
+    //this function as shared preferences that used in automatic login
     @Override
     protected void onStart() {
         super.onStart();

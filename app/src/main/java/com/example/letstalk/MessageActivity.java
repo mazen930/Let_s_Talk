@@ -143,7 +143,7 @@ public class MessageActivity extends AppCompatActivity {
     }
 
     //This method used to send message and store them in database
-    void sendMessage(String sender, String receiver, String message) {
+    void sendMessage(final String sender, String receiver, String message) {
         databaseReference = FirebaseDatabase.getInstance().getReference();
         HashMap<String, Object> hashMap = new HashMap<>();
         hashMap.put("sender", sender);
@@ -151,6 +151,23 @@ public class MessageActivity extends AppCompatActivity {
         hashMap.put("message", message);
         hashMap.put("seen", false);
         databaseReference.child("Chats").push().setValue(hashMap);
+
+        // add user to chat fragment directly
+        final DatabaseReference chatReference = FirebaseDatabase.getInstance().getReference("ChatList").child(firebaseUser.getUid())
+                .child(userId);
+        chatReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (!snapshot.exists()) {
+                    chatReference.child("id").setValue(userId);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
     }
 
     void readMessages(final String myId, final String userId, final String imgURL) {
