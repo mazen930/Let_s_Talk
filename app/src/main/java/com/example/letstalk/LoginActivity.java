@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -23,6 +24,7 @@ public class LoginActivity extends AppCompatActivity {
     MaterialEditText email, password;
     Button loginButton;
     FirebaseAuth firebaseAuth;
+    TextView forgetPassword;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +51,13 @@ public class LoginActivity extends AppCompatActivity {
                         });
             }
         });
+        forgetPassword.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getApplicationContext(), ResetPasswordActivity.class);
+                startActivity(intent);
+            }
+        });
     }
 
     private void initialize() {
@@ -56,6 +65,7 @@ public class LoginActivity extends AppCompatActivity {
         email = findViewById(R.id.email_login);
         password = findViewById(R.id.password_login);
         loginButton = findViewById(R.id.login_button);
+        forgetPassword = findViewById(R.id.forget_password);
 
         // initialize firebase
         firebaseAuth = FirebaseAuth.getInstance();

@@ -16,4 +16,8 @@
     <string name="hello">Hello !</string>
     <string name="profile">Profile</string>
     <string name="seen">seen</string>
+    <string name="forget_your_password">Forget your password</string>
+    <string name="email">Email</string>
+    <string name="reset">Reset</string>
+    <string name="by_clicking_reset">By clicking reset you will receive an e-mail to reset your password</string>
 </resources>
