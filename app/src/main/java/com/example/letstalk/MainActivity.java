@@ -16,6 +16,7 @@ import com.example.letstalk.Fragments.APIService;
 import com.example.letstalk.Fragments.ChatFragment;
 import com.example.letstalk.Fragments.ProfileFragment;
 import com.example.letstalk.Fragments.UsersFragment;
+import com.example.letstalk.Models.Chat;
 import com.example.letstalk.Models.User;
 import com.example.letstalk.Notifications.Client;
 import com.google.android.material.tabs.TabLayout;
@@ -84,8 +85,6 @@ public class MainActivity extends AppCompatActivity {
         userName = findViewById(R.id.username_main);
 
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-        //get data from data base using uid which is in fire base  user
-        databaseReference = FirebaseDatabase.getInstance().getReference("Users").child(firebaseUser.getUid());
 
         // initialize tool bar
         toolbar = findViewById(R.id.tool_bar_Main);
@@ -96,18 +95,43 @@ public class MainActivity extends AppCompatActivity {
         tabLayout = findViewById(R.id.tab_layout);
         viewPager = findViewById(R.id.tab_view_id);
 
-        // This second parameter is used to fill only the constructor of view page adapter
-        // as the old constructor is deprecated
-        viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager(), BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
 
-        viewPagerAdapter.addFragment(new ChatFragment(), "Chat");
-        viewPagerAdapter.addFragment(new UsersFragment(), "Users");
-        viewPagerAdapter.addFragment(new ProfileFragment(), "Profile");
+        databaseReference = FirebaseDatabase.getInstance().getReference("Chats");
+        databaseReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
 
-        viewPager.setAdapter(viewPagerAdapter);
+                int unRead = 0;
 
-        tabLayout.setupWithViewPager(viewPager);
+                // This second parameter is used to fill only the constructor of view page adapter
+                // as the old constructor is deprecated
+                viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager(), BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
+                for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
+                    Chat chat = dataSnapshot.getValue(Chat.class);
+                    assert chat != null;
+                    if (chat.getReceiver().equals(firebaseUser.getUid()) && !chat.isSeen()) {
+                        unRead += 1;
+                    }
+                }
+                if (unRead == 0) {
+                    viewPagerAdapter.addFragment(new ChatFragment(), "Chat");
+                } else {
+                    viewPagerAdapter.addFragment(new ChatFragment(), "(" + unRead + ") " + "Chat");
+                }
+                viewPagerAdapter.addFragment(new UsersFragment(), "Users");
+                viewPagerAdapter.addFragment(new ProfileFragment(), "Profile");
+                viewPager.setAdapter(viewPagerAdapter);
+                tabLayout.setupWithViewPager(viewPager);
+            }
 
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
+        //get data from data base using uid which is in fire base  user
+        databaseReference = FirebaseDatabase.getInstance().getReference("Users").child(firebaseUser.getUid());
     }
 
     void status(String status) {
