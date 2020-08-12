@@ -17,14 +17,21 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.example.letstalk.Adapters.MessageAdapter;
+import com.example.letstalk.Fragments.APIService;
 import com.example.letstalk.Models.Chat;
 import com.example.letstalk.Models.User;
+import com.example.letstalk.Notifications.Client;
+import com.example.letstalk.Notifications.Data;
+import com.example.letstalk.Notifications.MyResponse;
+import com.example.letstalk.Notifications.Sender;
+import com.example.letstalk.Notifications.Token;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
@@ -32,6 +39,9 @@ import java.util.HashMap;
 import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class MessageActivity extends AppCompatActivity {
     CircleImageView contactedProfilePicture;
@@ -45,6 +55,8 @@ public class MessageActivity extends AppCompatActivity {
     ArrayList<Chat> messagesArrayList;
     RecyclerView chatRecyclerView;
     MessageAdapter messageAdapter;
+    APIService apiService;
+    boolean notify = false;
 
     ValueEventListener seenValueEventListener;
 
@@ -66,6 +78,7 @@ public class MessageActivity extends AppCompatActivity {
         sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                notify = true;
                 String message = messageTextBox.getText().toString();
                 if (!message.equals(""))
                     sendMessage(firebaseUser.getUid(), userId, message);
@@ -82,6 +95,9 @@ public class MessageActivity extends AppCompatActivity {
         contactedProfilePicture = findViewById(R.id.profile_picture_message);
         sendButton = findViewById(R.id.send_button);
         messageTextBox = findViewById(R.id.enterMessage);
+
+        //Creating api service for notification
+        apiService = Client.getClient("https://fcm.googleapis.com/").create(APIService.class);
 
         chatRecyclerView = findViewById(R.id.message_list);
         chatRecyclerView.setHasFixedSize(true);
@@ -143,7 +159,7 @@ public class MessageActivity extends AppCompatActivity {
     }
 
     //This method used to send message and store them in database
-    void sendMessage(final String sender, String receiver, String message) {
+    void sendMessage(final String sender, final String receiver, String message) {
         databaseReference = FirebaseDatabase.getInstance().getReference();
         HashMap<String, Object> hashMap = new HashMap<>();
         hashMap.put("sender", sender);
@@ -160,6 +176,64 @@ public class MessageActivity extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (!snapshot.exists()) {
                     chatReference.child("id").setValue(userId);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+        final String msg = message;
+        databaseReference = FirebaseDatabase.getInstance().getReference("Users").child(firebaseUser.getUid());
+        databaseReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                User user = snapshot.getValue(User.class);
+                assert user != null;
+                // send only notification when user press send
+                if (notify) {
+                    sendNotification(receiver, user.getUsername(), msg);
+                }
+                notify = false;
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
+    }
+
+    private void sendNotification(String receiver, final String username, final String msg) {
+        DatabaseReference tokens = FirebaseDatabase.getInstance().getReference("Tokens");
+        Query query = tokens.orderByKey().equalTo(receiver);
+        query.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
+                    Token token = dataSnapshot.getValue(Token.class);
+                    Data data = new Data(firebaseUser.getUid(), userId, username + " : " + msg, "New Message", R.mipmap.ic_launcher_round);
+                    assert token != null;
+                    Sender sender = new Sender(data, token.getToken());
+                    apiService.sendNotifications(sender)
+                            .enqueue(new Callback<MyResponse>() {
+                                @Override
+                                public void onResponse(Call<MyResponse> call, Response<MyResponse> response) {
+                                    if (response.code() == 200) {
+                                        assert response.body() != null;
+                                        if (response.body().success != 1) {
+                                            Toast.makeText(MessageActivity.this, "Failed to send notifications", Toast.LENGTH_SHORT).show();
+                                        }
+                                    }
+                                }
+
+                                @Override
+                                public void onFailure(Call<MyResponse> call, Throwable t) {
+
+                                }
+                            });
                 }
             }
 

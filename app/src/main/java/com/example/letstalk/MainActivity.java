@@ -12,10 +12,12 @@ import android.view.MenuItem;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.example.letstalk.Fragments.APIService;
 import com.example.letstalk.Fragments.ChatFragment;
 import com.example.letstalk.Fragments.ProfileFragment;
 import com.example.letstalk.Fragments.UsersFragment;
 import com.example.letstalk.Models.User;
+import com.example.letstalk.Notifications.Client;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -41,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
     TabLayout tabLayout;
     ViewPager viewPager;
     ViewPagerAdapter viewPagerAdapter;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

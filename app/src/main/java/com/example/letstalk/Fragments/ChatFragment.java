@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 import com.example.letstalk.Adapters.UserAdapter;
 import com.example.letstalk.Models.ChatList;
 import com.example.letstalk.Models.User;
+import com.example.letstalk.Notifications.Token;
 import com.example.letstalk.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -22,6 +23,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.iid.FirebaseInstanceId;
 
 import java.util.ArrayList;
 
@@ -38,6 +40,7 @@ public class ChatFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_chat, container, false);
         initialize(view);
+        UpdateToken(FirebaseInstanceId.getInstance().getToken());
         return view;
     }
 
@@ -72,6 +75,12 @@ public class ChatFragment extends Fragment {
         });
 
 
+    }
+
+    void UpdateToken(String token) {
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Tokens");
+        Token token1 = new Token(token);
+        databaseReference.child(firebaseUser.getUid()).setValue(token1);
     }
 
     private void ChatList() {
