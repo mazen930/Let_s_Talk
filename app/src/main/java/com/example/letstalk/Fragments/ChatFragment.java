@@ -28,25 +28,31 @@ import com.google.firebase.iid.FirebaseInstanceId;
 import java.util.ArrayList;
 
 public class ChatFragment extends Fragment {
-    RecyclerView chatList;
-    UserAdapter userAdapter;
-    ArrayList<User> userArrayList;
-    ArrayList<ChatList> userIdArrayList;
-    FirebaseUser firebaseUser;
-    DatabaseReference databaseReference;
+    private UserAdapter userAdapter;
+    private ArrayList<User> userArrayList;
+    private ArrayList<ChatList> userIdArrayList;
+    private FirebaseUser firebaseUser;
+    private DatabaseReference databaseReference;
+    private View view;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_chat, container, false);
+        view = inflater.inflate(R.layout.fragment_chat, container, false);
         initialize(view);
         UpdateToken(FirebaseInstanceId.getInstance().getToken());
         return view;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        initialize(view);
+    }
+
     void initialize(View view) {
         // set has fixed size when you know that data won't change frequently
-        chatList = view.findViewById(R.id.chatted_with_recycle_view);
+        RecyclerView chatList = view.findViewById(R.id.chatted_with_recycle_view);
         chatList.setHasFixedSize(true);
         chatList.setLayoutManager(new LinearLayoutManager(getContext()));
 
